@@ -83,10 +83,42 @@ Read and clean the Mr. Trash Wheel sheet:
 
 ```{r}
 library(readxl)
-trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", range = "A2:N258")
+trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = 1, range = "A2:N258") %>% 
+  janitor::clean_names(dat = .) %>% 
+  filter(!is.na(dumpster))
+```
+
+```{r}
+mutate(trash_wheel, round(sports_balls, digits = 0)
+)
+```
+
+Read and clean precipitation data for 2016 and 2017. For each, omit rows without precipitation data and add a variable year. 
+
+```{r}
+prec17 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = 3, range = "A2:B14") %>% 
+  janitor::clean_names(dat = .) %>% 
+  filter(!is.na(total))
+prec17$year = 2017
+```
+
+```{r}
+prec16 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = 4, range = "A2:B14") %>% 
+  janitor::clean_names(dat = .) %>% 
+  filter(!is.na(total))
+prec16$year = 2016
 ```
 
 
+##Next, combine datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
+
+```{r}
+combined_data = (weather_df, trash_wheel, by = "date")
+combined_data
+```
+
+
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2017? What was the median number of sports balls in a dumpster in 2016?
 
 
 
