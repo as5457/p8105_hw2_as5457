@@ -37,20 +37,54 @@ The number of distinct stations is `r nrow(distinct(transit_data, station_name, 
 
 
 ##How many stations are ADA compliant?
-The number of stations that are ADA compliant is `r mean(transit_data$ada)`.
+The number of stations that are ADA compliant is.
 
 ```{r}
 transit_data %>% 
-  group_by (station_name, line) %>% 
-  tally(wt = ada)
+  filter (ada == "TRUE") %>% 
+  distinct (station_name)
 
 ```
 
 
-What proportion of station entrances / exits without vending allow entrance?
-Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
+##What proportion of station entrances / exits without vending allow entrance?
 
+```{r}
+vending =
+transit_data %>% 
+  filter (vending == "NO" & entry == "TRUE") %>% 
+  distinct (station_name)
+nrow(vending)/nrow(distinct(transit_data, station_name, line))
+```
 
+##Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
+
+```{r}
+a_train = transit_data %>% 
+  filter (route_name == "A") %>% 
+  distinct(station_name)
+nrow(a_train)
+```
+
+```{r}
+ada_comp = transit_data %>% 
+  filter (route_name == "A", ada == "TRUE") %>% 
+  distinct(station_name)
+nrow(ada_comp)
+```
+
+#Problem 2
+
+Read and clean the Mr. Trash Wheel sheet:
+
+- specify the sheet in the Excel file and to omit columns containing notes (using the range argument and cell_cols() function)
+- use reasonable variable names
+- omit rows that do not include dumpster-specific data, rounds the number of sports balls to the nearest integer and converts the result to an integer variable (using as.integer)
+
+```{r}
+library(readxl)
+trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", range = "A2:N258")
+```
 
 
 
