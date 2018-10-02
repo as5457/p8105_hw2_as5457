@@ -85,12 +85,13 @@ Read and clean the Mr. Trash Wheel sheet:
 library(readxl)
 trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = 1, range = "A2:N258") %>% 
   janitor::clean_names(dat = .) %>% 
-  filter(!is.na(dumpster))
+  filter(!is.na(dumpster)) %>% 
+  mutate (sports_balls = as.integer(round(sports_balls, digits=0)))
 ```
 
 ```{r}
-mutate(trash_wheel, round(sports_balls, digits = 0)
-)
+as.integer(trash_wheel$sports_balls)
+class(trash_wheel$sports_balls)
 ```
 
 Read and clean precipitation data for 2016 and 2017. For each, omit rows without precipitation data and add a variable year. 
@@ -113,8 +114,8 @@ prec16$year = 2016
 ##Next, combine datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
 
 ```{r}
-combined_data = (weather_df, trash_wheel, by = "date")
-combined_data
+combined_year = bind_rows(prec16, prec17) %>% 
+  mutate (month = month.name[month])
 ```
 
 
