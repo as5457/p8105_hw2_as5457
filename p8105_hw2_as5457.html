@@ -171,12 +171,93 @@ $(document).ready(function () {
 </div>
 <div id="how-many-distinct-stations-are-there-note-that-stations-are-identified-both-by-name-and-by-line-e.g.125th-st-abcd-125st-1-125st-45-the-distinct-function-may-be-useful-here." class="section level2">
 <h2>How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.</h2>
-<p>The number of distinct stations is 356.</p>
+<p>The number of distinct stations is 465.</p>
 </div>
 <div id="how-many-stations-are-ada-compliant" class="section level2">
 <h2>How many stations are ADA compliant?</h2>
-<p>The number of stations that are ADA compliant is 0.2505353.</p>
-<p>What proportion of station entrances / exits without vending allow entrance? Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?</p>
+<p>The number of stations that are ADA compliant is.</p>
+<pre class="r"><code>transit_data %&gt;% 
+  filter (ada == &quot;TRUE&quot;) %&gt;% 
+  distinct (station_name)</code></pre>
+<pre><code>## # A tibble: 73 x 1
+##    station_name                  
+##    &lt;chr&gt;                         
+##  1 Atlantic Av-Barclays Ctr      
+##  2 DeKalb Av                     
+##  3 Pacific St                    
+##  4 Grand Central                 
+##  5 34th St                       
+##  6 47-50th Sts Rockefeller Center
+##  7 Church Av                     
+##  8 21st St                       
+##  9 Lexington Av                  
+## 10 Roosevelt Island              
+## # ... with 63 more rows</code></pre>
+</div>
+<div id="what-proportion-of-station-entrances-exits-without-vending-allow-entrance" class="section level2">
+<h2>What proportion of station entrances / exits without vending allow entrance?</h2>
+<pre class="r"><code>vending =
+transit_data %&gt;% 
+  filter (vending == &quot;NO&quot; &amp; entry == &quot;TRUE&quot;) %&gt;% 
+  distinct (station_name)
+nrow(vending)/nrow(distinct(transit_data, station_name, line))</code></pre>
+<pre><code>## [1] 0.09032258</code></pre>
+</div>
+<div id="reformat-data-so-that-route-number-and-route-name-are-distinct-variables.-how-many-distinct-stations-serve-the-a-train-of-the-stations-that-serve-the-a-train-how-many-are-ada-compliant" class="section level2">
+<h2>Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?</h2>
+<pre class="r"><code>a_train = transit_data %&gt;% 
+  filter (route_name == &quot;A&quot;) %&gt;% 
+  distinct(station_name)
+nrow(a_train)</code></pre>
+<pre><code>## [1] 56</code></pre>
+<pre class="r"><code>ada_comp = transit_data %&gt;% 
+  filter (route_name == &quot;A&quot;, ada == &quot;TRUE&quot;) %&gt;% 
+  distinct(station_name)
+nrow(ada_comp)</code></pre>
+<pre><code>## [1] 16</code></pre>
+</div>
+</div>
+<div id="problem-2" class="section level1">
+<h1>Problem 2</h1>
+<p>Read and clean the Mr. Trash Wheel sheet:</p>
+<ul>
+<li>specify the sheet in the Excel file and to omit columns containing notes (using the range argument and cell_cols() function)</li>
+<li>use reasonable variable names</li>
+<li>omit rows that do not include dumpster-specific data, rounds the number of sports balls to the nearest integer and converts the result to an integer variable (using as.integer)</li>
+</ul>
+<pre class="r"><code>library(readxl)
+trash_wheel = readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx&quot;, sheet = 1, range = &quot;A2:N258&quot;) %&gt;% 
+  janitor::clean_names(dat = .) %&gt;% 
+  filter(!is.na(dumpster)) %&gt;% 
+  mutate (sports_balls = as.integer(round(sports_balls, digits=0)))</code></pre>
+<pre class="r"><code>as.integer(trash_wheel$sports_balls)</code></pre>
+<pre><code>##   [1]  7  5  6  6  7  5  3  6  6  7  6  8  6  6  6  6  5  6  6  7  6  6  6
+##  [24]  5  6  7  8  7  4  7  3  6  6  6  7  6  6  6  7  6  6  7  6  6  7  6
+##  [47]  5  3  8 16 14 13 16  8  5  8 11  7  6  8 22 28 19 32 24 26 36 24  9
+##  [70] 16 22 17 13 14 21 15 13 18 16 22 32 18 21 34 19 14 22 16 25 27 18 20
+##  [93] 17 56 32 22  6  3 17 13 12  7  8 16 23 33 27 15 21  9 13 22 17 27  8
+## [116] 17 14 21 26  6  4 16 24 23 18 46 38 24 36 42 23 34 38 26 32 43 38 24
+## [139] 35 26 29 31 28 34 26 38 25 16 24 15 31 22 28 32 15 28 33 11 37 22 11
+## [162] 34  6 24 20 15 22 19 12 14 18 10  6  8  8  5  3  5  7  2  7  3  4  5
+## [185]  8 10  5  7  5  8 10 11 14 12  8  5  9  5 14 12  8  7 18 11 22 13 21
+## [208] 14  9  6 13 11  6  8  5</code></pre>
+<pre class="r"><code>class(trash_wheel$sports_balls)</code></pre>
+<pre><code>## [1] &quot;integer&quot;</code></pre>
+<p>Read and clean precipitation data for 2016 and 2017. For each, omit rows without precipitation data and add a variable year.</p>
+<pre class="r"><code>prec17 = readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx&quot;, sheet = 3, range = &quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names(dat = .) %&gt;% 
+  filter(!is.na(total))
+prec17$year = 2017</code></pre>
+<pre class="r"><code>prec16 = readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx&quot;, sheet = 4, range = &quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names(dat = .) %&gt;% 
+  filter(!is.na(total))
+prec16$year = 2016</code></pre>
+<div id="next-combine-datasets-and-convert-month-to-a-character-variable-the-variable-month.name-is-built-into-r-and-should-be-useful." class="section level2">
+<h2>Next, combine datasets and convert month to a character variable (the variable month.name is built into R and should be useful).</h2>
+<pre class="r"><code>combined_year = bind_rows(prec16, prec17) %&gt;% 
+  mutate (month = month.name[month])</code></pre>
+<p>Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2017? What was the median number of sports balls in a dumpster in 2016?</p>
+<p>The number of observations in the trashwheel dataset is 215. The number of observations in the merged precipitation dataset is 20. The key variables are CLEANUP. The median number of sports balls in a dumpster in 2016 was 13.</p>
 </div>
 </div>
 
