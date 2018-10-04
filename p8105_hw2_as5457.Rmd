@@ -2,7 +2,7 @@
 title: "p8105_hw2_as5457"
 author: "Sunny Siddique"
 date: "October 1, 2018"
-output: html_document
+output: github_document
 ---
 
 Problem 1
@@ -164,14 +164,6 @@ The number of unique locations is `r length(unique(brfss_smart$locationabbr))`. 
 
 ##In 2002, what is the median of the “Excellent” response value?
 
-```{r}
-class(brfss_smart$excellent)
-as.numeric(brfss_smart$excellent)
-median(brfss_smart$excellent)
-brfss_smart %>% 
-  filter(year == 2002) %>% 
-  median(excellent)
-```
 
 
 Make a histogram of “Excellent” response values in the year 2002.
@@ -186,6 +178,7 @@ excellent_hist = brfss_smart %>%
   filter(year == 2002) %>% 
   ggplot(., aes(x = excellent)) + 
   geom_histogram()
+excellent_hist
 ```
 
 
