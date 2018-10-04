@@ -5,29 +5,37 @@ date: "October 1, 2018"
 output: github_document
 ---
 
-Problem 1
-
-```{r}
-library(tidyverse)
-```
-
-
+-------------------------------------------------------------------------------------------------------------------
 #Problem 1
 
 
-##Read and clean the data; retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (YES vs NO) to a logical variable (the ifelse or recode function may be useful).
+**Read and clean the data; retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (YES vs NO) to a logical variable (the ifelse or recode function may be useful).**
 
-```{r}
+```{r transit_df}
+#Loading the tidyverse package
+library(tidyverse)
+
+#Reading in the CSV File
 transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
-  janitor::clean_names(dat = .) %>% 
+
+#Cleaning variable
+  janitor::clean_names(dat = .) %>%     
+  
+#renaming route variables with _ to be able to split by "_"
   rename (route_1 = route1, route_2 = route2, route_3 = route3, route_4 = route4, route_5 = route5, route_6 = route6, route_7 = route7, route_8 = route8, route_9 = route9, route_10 = route10, route_11 = route11) %>% 
-  gather(key = route, value = route_name, route_1:route_11) %>% 
-  separate (route, into = c("route_str", "route_number"), sep = "_") %>% 
-    select (line, station_name, station_latitude, station_longitude, route_number, route_name, entry, vending, ada) %>% 
-  mutate(entry=ifelse(entry=="YES", yes=TRUE, no=FALSE))
+  gather(key = route, value = route_name, route_1:route_11) %>%
+  
+#Splitting the route variable
+  separate (route, into = c("route_str", "route_number"), sep = "_") %>%
+  
+#Selecting relevant variables
+    select (line, station_name, station_latitude, station_longitude, route_number, route_name, entry, vending, ada) %>%   
+  
+#Converting the entry variable from character to logical.
+  mutate(entry=ifelse(entry == "YES", yes = TRUE, no = FALSE))  
 ```
 
-##Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
+##Write a short paragraph about this dataset and explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
 
 The variables in this dataset provide information regarding the line, name, exact location (latitude/longitude), the name and number of routes available at the station, entry, vending and ADA compliance status. To clean this dataset, I first used the janitor package to change the variable names to lower case and separated by _. Then I renamed the route variables and separated the character variables by underscores to be able to later split it into two variables: route number and route name. I then selected only the variables specified in the prompt and used the mutate and ifthen function to change the character variable "entry" into a logical variable. The dimension of the resulting dataset is `r dim_desc(transit_data)`. These data are tidy in the sense that they meet the following three criteria: columns are variables, rows are observations, every value has a cell (even though not all cells have a value).
 
@@ -85,7 +93,7 @@ Read and clean the Mr. Trash Wheel sheet:
 
 ```{r}
 library(readxl)
-trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = 1, range = "A2:N258") %>% 
+trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N258") %>% 
   janitor::clean_names(dat = .) %>% 
   filter(!is.na(dumpster)) %>% 
   mutate (sports_balls = as.integer(round(sports_balls, digits = 0)))
@@ -164,6 +172,13 @@ The number of unique locations is `r length(unique(brfss_smart$locationabbr))`. 
 
 ##In 2002, what is the median of the “Excellent” response value?
 
+The median of the excellent response value is
+
+```{r}
+med_excell = brfss_smart %>%
+  filter(year == 2002)
+median(brfss_smart$excellent)
+```
 
 
 Make a histogram of “Excellent” response values in the year 2002.
