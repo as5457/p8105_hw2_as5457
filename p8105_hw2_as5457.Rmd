@@ -18,82 +18,91 @@ library(tidyverse)
 #Reading in the CSV File
 transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
 
-#Cleaning variable
+#Cleaning variable names
   janitor::clean_names(dat = .) %>%     
   
-#renaming route variables with _ to be able to split by "_"
-  rename (route_1 = route1, route_2 = route2, route_3 = route3, route_4 = route4, route_5 = route5, route_6 = route6, route_7 = route7, route_8 = route8, route_9 = route9, route_10 = route10, route_11 = route11) %>% 
-  gather(key = route, value = route_name, route_1:route_11) %>%
-  
-#Splitting the route variable
-  separate (route, into = c("route_str", "route_number"), sep = "_") %>%
-  
 #Selecting relevant variables
-    select (line, station_name, station_latitude, station_longitude, route_number, route_name, entry, vending, ada) %>%   
+    select (line, station_name, station_latitude, station_longitude, route1:route11, entry, vending, entrance_type, ada) %>%   
   
 #Converting the entry variable from character to logical.
   mutate(entry=ifelse(entry == "YES", yes = TRUE, no = FALSE))  
 ```
 
-##Write a short paragraph about this dataset and explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
+**Write a short paragraph about this dataset and explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?**
 
-The variables in this dataset provide information regarding the line, name, exact location (latitude/longitude), the name and number of routes available at the station, entry, vending and ADA compliance status. To clean this dataset, I first used the janitor package to change the variable names to lower case and separated by _. Then I renamed the route variables and separated the character variables by underscores to be able to later split it into two variables: route number and route name. I then selected only the variables specified in the prompt and used the mutate and ifthen function to change the character variable "entry" into a logical variable. The dimension of the resulting dataset is `r dim_desc(transit_data)`. These data are tidy in the sense that they meet the following three criteria: columns are variables, rows are observations, every value has a cell (even though not all cells have a value).
+The variables in this dataset provide information regarding the line, name, exact location (latitude/longitude), the name and number of routes available at the station, entry, vending and ADA compliance status. To clean this dataset, I first used the janitor package to change the variable names to lower case and separated by "_". Then I renamed the route variables and separated the character variables by underscores to be able to later split it into two variables: route number and route name. I then selected only the variables specified in the prompt and used the mutate and ifthen function to change the character variable "entry" into a logical variable. The dimension of the resulting dataset is `r dim_desc(transit_data)`. These data are tidy in the sense that they meet the following three criteria: columns are variables, rows are observations, every value has a cell (even though not all cells have a value).
 
 
-##How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.
+**How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.**
+
 The number of distinct stations is `r nrow(distinct(transit_data, station_name, line))`.
 
 
-##How many stations are ADA compliant?
+**How many stations are ADA compliant?**
 
 ```{r}
 station_ADA = transit_data %>% 
   filter (ada == "TRUE") %>% 
-  distinct (station_name)
+  distinct (station_name,line)
 nrow(station_ADA)
 ```
 
 
-##What proportion of station entrances / exits without vending allow entrance?
+**What proportion of station entrances / exits without vending allow entrance?**
+
+The proportion of station entrances/exits without vending & allow entrance are
 
 ```{r}
-vending =
-transit_data %>% 
-  filter (vending == "NO" & entry == "TRUE") %>% 
-  distinct (station_name)
-nrow(vending)/nrow(distinct(transit_data, station_name, line))
+numerator =
+nrow(transit_data1 %>% 
+filter (vending == "NO", entry == "YES"))
+denominator = 
+  nrow(transit_data1 %>% 
+         filter(vending == "NO"))
+prop = numerator/denominator
+prop
 ```
 
-##Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? 
+**Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train?** 
 
 ```{r}
-a_train = transit_data %>% 
+#renaming route variables with _ to be able to split by "_" 
+transit_split = transit_data %>% 
+  rename (route_1 = route1, route_2 = route2, route_3 = route3, route_4 = route4, route_5 = route5, route_6 = route6, route_7 = route7, route_8 = route8, route_9 = route9, route_10 = route10, route_11 = route11) %>% 
+  gather(key = route, value = route_name, route_1:route_11) %>%
+  
+#Splitting the route variable
+  separate (route, into = c("route_str", "route_number"), sep = "_")
+```
+
+
+```{r}
+a_train = transit_split %>% 
   filter (route_name == "A") %>% 
-  distinct(station_name)
+  distinct(station_name, line)
 nrow(a_train)
 ```
 
-##Of the stations that serve the A train, how many are ADA compliant?
+**Of the stations that serve the A train, how many are ADA compliant?**
 
 ```{r}
-ada_comp = transit_data %>% 
+ada_comp = transit_split %>% 
   filter (route_name == "A", ada == "TRUE") %>% 
-  distinct(station_name)
+  distinct(station_name, line)
 nrow(ada_comp)
 ```
 
 #Problem 2
 
-Read and clean the Mr. Trash Wheel sheet:
+**Read and clean the Mr. Trash Wheel sheet:**
 
-- specify the sheet in the Excel file and to omit columns containing notes (using the range argument and
-##cell_cols() function)
+- specify the sheet in the Excel file and to omit columns containing notes (using the range argument and cell_cols() function)
 - use reasonable variable names
 - omit rows that do not include dumpster-specific data, rounds the number of sports balls to the nearest integer and converts the result to an integer variable (using as.integer)
 
 ```{r}
 library(readxl)
-trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N258") %>% 
+trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N336") %>% 
   janitor::clean_names(dat = .) %>% 
   filter(!is.na(dumpster)) %>% 
   mutate (sports_balls = as.integer(round(sports_balls, digits = 0)))
@@ -172,12 +181,28 @@ The number of unique locations is `r length(unique(brfss_smart$locationabbr))`. 
 
 ##In 2002, what is the median of the “Excellent” response value?
 
-The median of the excellent response value is
+The median of the excellent response value is 23.6
+
+```{r}
+median_excellent = brfss_smart %>%
+  na.omit() %>% 
+  group_by(year) %>%
+  summarize(median_ex = median(excellent)) %>% 
+  filter (year == 2002)
+median_excellent
+```
+
 
 ```{r}
 med_excell = brfss_smart %>%
-  filter(year == 2002)
-median(brfss_smart$excellent)
+  filter(year == 2002) %>% 
+  select(excellent) 
+  summarize(med_excell)
+
+med_excell
+  pull(excellent) %>% 
+  median()
+median(as.numeric(med_excell$excellent))
 ```
 
 
@@ -208,8 +233,3 @@ combined_county = bind_rows(ny_county, queens_county)
 ggplot(combined_county, aes(x = year, y = excellent)) + 
   geom_point(aes(color = locationdesc))
 ```
-
-
-
-
-
