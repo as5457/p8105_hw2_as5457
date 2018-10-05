@@ -193,7 +193,28 @@ combined_year = bind_rows(prec16, prec17) %>%
 * The key variables in the trash_wheel dataset include variables that describe the amount of trash that was collected in each dumpster (by weight and volume) and also the various types of trash that were collected (plastic bottles, grocery bags etc.). 
 * Key variables in the precipitation dataset include the amount of precipitation in 2016 and 2017. 
 * Total precipitation in 2017 was `r sum(prec17$total)`.
-* The median number of sports balls in a dumpster in 2016 was `r median(trash_wheel$sports_balls)`.
+* The median number of sports balls in a dumpster in 2016 was 26.
+
+```{r}
+#Defining a new object called median_trash that pulls and filters data from brfss_smart.
+median_trash = trash_wheel %>%
+  
+#Omitting any missing vallues
+  na.omit() %>% 
+  
+#Defining the aggregate function group_by function to group by year.
+  group_by(year) %>%
+  
+#Using summarize function to calculate median of the "sports_balls" response value.
+  summarize(median_sportsballs = median(sports_balls)) %>% 
+  
+#Filtering results to show only the value for 2016.
+  filter (year == 2016)
+
+#Showing the final remaining cell. 
+median_trash
+```
+
 
 #Problem 3
 
