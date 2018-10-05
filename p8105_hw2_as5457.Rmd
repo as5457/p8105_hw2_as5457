@@ -31,8 +31,7 @@ class(transit_data$entry)
 
 **Write a short paragraph about this dataset and explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?**
 
-*The variables in this dataset provide information regarding the line, name, exact location (latitude/longitude), the name and number of routes available at the station, entry, vending and ADA compliance status.*
-*To clean this dataset, I first used the janitor package to change the variable names to lower case and variable names with multiple words were separated by "_".* *I then selected the variables that were specified in the prompt and used the mutate and ifthen function to change the character variable "entry" into a logical variable.* *The dimension of the resulting dataset is `r dim_desc(transit_data)`.* *This dataset is not tidy because the route variables share similar data on repeated columns.* *Therefore, to make this dataset more tidy we can combine the route variables into two columns indicating the route number and route name.*
+The variables in this dataset provide information regarding the line, name, exact location (latitude/longitude), the name and number of routes available at the station, entry, vending and ADA compliance status. To clean this dataset, I first used the janitor package to change the variable names to lower case and variable names with multiple words were separated by "_". Then selected the variables that were specified in the prompt and used the mutate and ifthen function to change the character variable "entry" into a logical variable. The dimension of the resulting dataset is `r dim_desc(transit_data)`. This dataset is not tidy because the route variables share similar data on repeated columns. Therefore, to make this dataset more tidy we can combine the route variables into two columns indicating the route number and route name.*
 
 
 **How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.**
@@ -144,10 +143,6 @@ trash_wheel = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.
 trash_wheel
 ```
 
-```{r}
-as.integer(trash_wheel$sports_balls)
-class(trash_wheel$sports_balls)
-```
 
 **Read and clean precipitation data for 2016 and 2017. For each, omit rows without precipitation data and add a variable year.**
 
@@ -293,7 +288,11 @@ excellent_hist = brfss_smart %>%
 
 #Viewing the histogram
 excellent_hist
+
+#Saving histogram to project directory using ggsave.
+ggsave("histogram_excellent.pdf", plot = excellent_hist)
 ```
+
 
 
 **Make a scatterplot showing the proportion of “Excellent” response values in New York County and Queens County (both in NY State) in each year from 2002 to 2010.**
@@ -311,7 +310,13 @@ queens_county = brfss_smart %>%
 combined_county = bind_rows(ny_county, queens_county)
 
 #Creating scatterplot showing the proportion of "Excellent" response values in the two counties. 
-ggplot(combined_county, aes(x = year, y = excellent)) + 
+scatter_county = ggplot(combined_county, aes(x = year, y = excellent)) + 
   geom_point(aes(color = locationdesc))
+
+#Viewing the scatterplot
+scatter_county
+
+#Saving scatterplot to project directory using ggsave.
+ggsave("scatter_county.pdf", plot = scatter_county)
 ```
 
