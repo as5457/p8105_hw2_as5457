@@ -260,7 +260,7 @@ janitor::clean_names(dat = .) %>%
 
 **How many unique locations are included in the dataset? Is every state represented? What state is observed the most?**
 
-*The number of unique locations is `r length(unique(brfss_smart$locationabbr))`. This includes all 50 states and Washington DC. The state that is observed the most is `r tail(names(sort(table(brfss_smart$locationabbr))), 1)`.*
+*The number of unique locations is `r length(unique(brfss_smart$locationdesc))`. The number of unique states included is `r length(unique(brfss_smart$locationabbr))`.This includes all 50 states and Washington DC. The state that is observed the most is `r tail(names(sort(table(brfss_smart$locationabbr))), 1)`.*
 
 
 
